@@ -2,7 +2,7 @@
 
 1. Play Hill Climb Racing (explain how COINs work in games)
 2. Minecraft
-3. GTA V Online Experience
+3. GTA V Online Experience (MMO)
 4. What is an Easter Egg?
 5. Kaneda's bike from the movie Akira (1988)
 6. What is a walk-through? What is a Twitch Stream?
@@ -18,7 +18,14 @@
 16. What are Haptics?
 17. Who is Buckaroo Banzai?
 18. Stayin' Alive, Song by Bee Gees ‧ 1977
-19. The Breakfast Club and Ferris Bueller, Fast Times at Ridgemont High
-20. 
-
-## Start from 1:00:00 timestamp later
+19. The Breakfast Club and Ferris Bueller, Fast Times at Ridgemont High, Animal House
+20. Say Anything, The Shining, Mayhem Mansion
+21. Atari 2600 (with the shots from Pixels 2015)
+22. Centipede (from Pixels 2015)
+23. Adventure (Atari 2600)
+24. Chucky
+25. Mecha-Godzilla
+26. Transformer (Original) / Gundam
+27. Terminator 2 final scene in the fire pit
+28. Hadouken (Street Fighter)
+29. Extra Life (Mario)
