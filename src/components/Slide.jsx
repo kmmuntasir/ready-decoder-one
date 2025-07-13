@@ -4,6 +4,7 @@ import './Slide.css';
 
 const Slide = ({ reference, isActive, slideNumber }) => {
   const [dominantColor, setDominantColor] = useState('#1a1a1a');
+  const [layoutType, setLayoutType] = useState('grid');
   const imageRef = useRef(null);
 
   // Get all available images for this reference
@@ -16,6 +17,79 @@ const Slide = ({ reference, isActive, slideNumber }) => {
   };
 
   const images = getImages();
+
+  // Extract dimensions from filename and calculate aspect ratio
+  const getImageAspectRatio = (imagePath) => {
+    const match = imagePath.match(/(\d+)x(\d+)/);
+    if (match) {
+      const width = parseInt(match[1]);
+      const height = parseInt(match[2]);
+      return width / height;
+    }
+    return 1; // Default square aspect ratio
+  };
+
+  // Determine optimal layout based on image aspect ratios and screen utilization
+  const determineLayout = () => {
+    if (images.length === 0) return 'grid';
+    
+    const aspectRatios = images.map(img => getImageAspectRatio(img));
+    
+    // Count different aspect ratio types
+    const landscapeCount = aspectRatios.filter(ratio => ratio > 1.4).length;
+    const portraitCount = aspectRatios.filter(ratio => ratio < 0.7).length;
+    const squareCount = aspectRatios.filter(ratio => ratio >= 0.7 && ratio <= 1.4).length;
+    
+    // Single image layouts - maximize screen usage
+    if (images.length === 1) {
+      const ratio = aspectRatios[0];
+      if (ratio > 2.5) return 'single-ultra-wide';
+      if (ratio > 1.6) return 'single-wide';
+      if (ratio < 0.4) return 'single-ultra-tall';
+      if (ratio < 0.8) return 'single-tall';
+      return 'single-centered';
+    }
+    
+    // Two image layouts - optimize for screen space
+    if (images.length === 2) {
+      const ratio1 = aspectRatios[0];
+      const ratio2 = aspectRatios[1];
+      
+      // Both landscape - stack vertically for better use of screen width
+      if (ratio1 > 1.3 && ratio2 > 1.3) return 'two-landscape-stacked';
+      // Both portrait - place side by side for better use of screen height
+      if (ratio1 < 0.8 && ratio2 < 0.8) return 'two-portrait-side';
+      // Mixed - adaptive layout
+      return 'two-adaptive';
+    }
+    
+    // Three images - special layouts
+    if (images.length === 3) {
+      if (landscapeCount >= 2) return 'three-landscape-focus';
+      if (portraitCount >= 2) return 'three-portrait-focus';
+      return 'three-mixed';
+    }
+    
+    // Four or more images - grid layouts optimized for aspect ratios
+    if (images.length >= 4) {
+      if (landscapeCount > portraitCount) return 'multi-landscape-grid';
+      if (portraitCount > landscapeCount) return 'multi-portrait-grid';
+      return 'multi-balanced-grid';
+    }
+    
+    // Multiple image layouts - legacy fallback
+    if (portraitCount > landscapeCount) return 'portrait-grid';
+    if (landscapeCount > portraitCount) return 'landscape-grid';
+    
+    return 'mixed-grid';
+  };
+
+  // Update layout when images change
+  useEffect(() => {
+    const layout = determineLayout();
+    console.log('Layout determined:', layout, 'for images:', images.length, 'aspect ratios:', images.map(img => getImageAspectRatio(img)));
+    setLayoutType(layout);
+  }, [images]);
 
   // Extract dominant color from first image
   const extractDominantColor = (imageSrc) => {
@@ -93,11 +167,6 @@ const Slide = ({ reference, isActive, slideNumber }) => {
       }}
     >
       <div className="slide-content">
-        <div className="slide-header">
-          <span className="slide-number">#{slideNumber}</span>
-          <h2 className="slide-title">{reference.title}</h2>
-        </div>
-
         <div className="slide-body">
           <div className="media-container">
             {reference.youtubeUrl ? (
@@ -108,7 +177,7 @@ const Slide = ({ reference, isActive, slideNumber }) => {
                   isActive={isActive}
                 />
                 {images.length > 0 && (
-                  <div className="images-grid">
+                  <div className={`images-grid layout-${layoutType}`}>
                     {images.map((img, index) => (
                       <img
                         key={index}
@@ -121,7 +190,7 @@ const Slide = ({ reference, isActive, slideNumber }) => {
                 )}
               </div>
             ) : (
-              <div className="images-grid">
+              <div className={`images-grid layout-${layoutType}`}>
                 {images.map((img, index) => (
                   <img
                     key={index}
@@ -136,6 +205,10 @@ const Slide = ({ reference, isActive, slideNumber }) => {
           </div>
 
           <div className="text-container">
+            <div className="slide-header">
+              <span className="slide-number">#{slideNumber}</span>
+              <h2 className="slide-title">{reference.title}</h2>
+            </div>
             <p className="slide-description">{reference.description}</p>
             
             {reference.youtubeUrl && (

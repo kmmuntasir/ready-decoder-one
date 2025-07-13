@@ -15,10 +15,6 @@ const Slideshow = () => {
     setCurrentSlide((prev) => (prev - 1 + references.length) % references.length);
   };
 
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
-
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -50,29 +46,16 @@ const Slideshow = () => {
     }
   }, [isAutoPlay, currentSlide]);
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
     <div className="slideshow-container">
-      <div className="slideshow-header">
-        <h1>🎮 Ready Decoder One</h1>
-        <div className="slideshow-controls">
-          <button onClick={prevSlide} className="nav-button">
-            ← Previous
-          </button>
-          <span className="slide-counter">
-            {currentSlide + 1} / {references.length}
-          </span>
-          <button onClick={nextSlide} className="nav-button">
-            Next →
-          </button>
-          <button 
-            onClick={() => setIsAutoPlay(!isAutoPlay)} 
-            className={`auto-play-button ${isAutoPlay ? 'active' : ''}`}
-          >
-            {isAutoPlay ? '⏸️ Pause' : '▶️ Auto'}
-          </button>
-        </div>
-      </div>
-
       <div className="slide-container">
         <Slide 
           reference={references[currentSlide]} 
@@ -81,21 +64,27 @@ const Slideshow = () => {
         />
       </div>
 
-      <div className="slide-dots">
-        {references.map((_, index) => (
-          <button
-            key={index}
-            className={`dot ${index === currentSlide ? 'active' : ''}`}
-            onClick={() => goToSlide(index)}
-            title={`Go to slide ${index + 1}: ${references[index].title}`}
-          />
-        ))}
-      </div>
-
-      <div className="slideshow-footer">
-        <p>
-          Use ← → arrow keys to navigate • Space bar to toggle auto-play
-        </p>
+      {/* Floating controls */}
+      <div className="floating-controls">
+        <button onClick={prevSlide} className="control-btn" title="Previous slide">
+          ←
+        </button>
+        <span className="slide-counter">
+          {currentSlide + 1} / {references.length}
+        </span>
+        <button onClick={nextSlide} className="control-btn" title="Next slide">
+          →
+        </button>
+        <button 
+          onClick={() => setIsAutoPlay(!isAutoPlay)} 
+          className={`control-btn ${isAutoPlay ? 'active' : ''}`}
+          title={isAutoPlay ? 'Pause auto-play' : 'Start auto-play'}
+        >
+          {isAutoPlay ? '⏸️' : '▶️'}
+        </button>
+        <button onClick={toggleFullscreen} className="control-btn" title="Toggle fullscreen">
+          ⛶
+        </button>
       </div>
     </div>
   );
