@@ -59,3 +59,9 @@ If you're a fellow geek who spotted a reference I missed, feel free to fork the 
 GPL 3.0
 
 ---
+
+## ⚠️ Image Usage Notice
+
+This slideshow uses a variety of images collected from the internet to illustrate pop-culture references. Many of these images may be copyright protected and are included here for educational and commentary purposes only. **Please do not use these images for any commercial purpose.**
+
+---
