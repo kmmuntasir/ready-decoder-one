@@ -3,7 +3,6 @@ import YouTubePlayer from './YouTubePlayer';
 import './Slide.css';
 
 const Slide = ({ reference, isActive, slideNumber }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [dominantColor, setDominantColor] = useState('#1a1a1a');
   const imageRef = useRef(null);
 
@@ -18,17 +17,7 @@ const Slide = ({ reference, isActive, slideNumber }) => {
 
   const images = getImages();
 
-  // Cycle through images if multiple exist
-  useEffect(() => {
-    if (images.length > 1 && isActive) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % images.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [images.length, isActive]);
-
-  // Extract dominant color from image
+  // Extract dominant color from first image
   const extractDominantColor = (imageSrc) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -73,12 +62,12 @@ const Slide = ({ reference, isActive, slideNumber }) => {
     img.src = imageSrc;
   };
 
-  // Extract color when image changes
+  // Extract color from first image
   useEffect(() => {
-    if (images[currentImageIndex]) {
-      extractDominantColor(images[currentImageIndex]);
+    if (images[0]) {
+      extractDominantColor(images[0]);
     }
-  }, [currentImageIndex, images]);
+  }, [images]);
 
   // Extract YouTube video ID from URL
   const getYouTubeVideoId = (url) => {
@@ -119,40 +108,29 @@ const Slide = ({ reference, isActive, slideNumber }) => {
                   isActive={isActive}
                 />
                 {images.length > 0 && (
-                  <div className="thumbnail-images">
+                  <div className="images-grid">
                     {images.map((img, index) => (
                       <img
                         key={index}
                         src={img}
                         alt={`${reference.title} ${index + 1}`}
-                        className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                        onClick={() => setCurrentImageIndex(index)}
+                        className="grid-image"
                       />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="image-container">
-                {images.length > 0 && (
+              <div className="images-grid">
+                {images.map((img, index) => (
                   <img
-                    ref={imageRef}
-                    src={images[currentImageIndex]}
-                    alt={reference.title}
-                    className="slide-image"
+                    key={index}
+                    ref={index === 0 ? imageRef : null}
+                    src={img}
+                    alt={`${reference.title} ${index + 1}`}
+                    className="grid-image"
                   />
-                )}
-                {images.length > 1 && (
-                  <div className="image-indicators">
-                    {images.map((_, index) => (
-                      <button
-                        key={index}
-                        className={`indicator ${index === currentImageIndex ? 'active' : ''}`}
-                        onClick={() => setCurrentImageIndex(index)}
-                      />
-                    ))}
-                  </div>
-                )}
+                ))}
               </div>
             )}
           </div>
