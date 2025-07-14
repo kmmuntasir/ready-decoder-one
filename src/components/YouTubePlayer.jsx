@@ -4,7 +4,9 @@ const YouTubePlayer = ({ videoId, startTime = 0, isActive }) => {
   const playerRef = useRef(null);
   const [player, setPlayer] = useState(null);
   const [isReady, setIsReady] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState(null);
 
+  // Initialize the YouTube player once
   useEffect(() => {
     // Load YouTube IFrame API
     if (!window.YT) {
@@ -22,10 +24,14 @@ const YouTubePlayer = ({ videoId, startTime = 0, isActive }) => {
 
     return () => {
       if (player) {
-        player.destroy();
+        try {
+          player.destroy();
+        } catch (error) {
+          console.warn('Error destroying YouTube player:', error);
+        }
       }
     };
-  }, [videoId]);
+  }, []); // Remove videoId dependency to prevent recreation
 
   const initializePlayer = () => {
     if (playerRef.current && videoId) {
@@ -46,28 +52,51 @@ const YouTubePlayer = ({ videoId, startTime = 0, isActive }) => {
           onReady: (event) => {
             setPlayer(event.target);
             setIsReady(true);
+            setCurrentVideoId(videoId);
           },
           onStateChange: (event) => {
             // Handle player state changes if needed
+          },
+          onError: (event) => {
+            console.error('YouTube player error:', event.data);
           },
         },
       });
     }
   };
 
-  // Handle autoplay/stop based on slide activity
+  // Handle video changes by loading new video instead of recreating player
   useEffect(() => {
-    if (player && isReady) {
-      if (isActive) {
-        // Start playing when slide becomes active
-        player.seekTo(startTime);
-        player.playVideo();
-      } else {
-        // Stop playing when slide becomes inactive
-        player.pauseVideo();
+    if (player && isReady && videoId && videoId !== currentVideoId) {
+      try {
+        player.loadVideoById({
+          videoId: videoId,
+          startSeconds: startTime
+        });
+        setCurrentVideoId(videoId);
+      } catch (error) {
+        console.error('Error loading new video:', error);
       }
     }
-  }, [isActive, player, isReady, startTime]);
+  }, [videoId, startTime, player, isReady, currentVideoId]);
+
+  // Handle autoplay/stop based on slide activity
+  useEffect(() => {
+    if (player && isReady && currentVideoId) {
+      try {
+        if (isActive) {
+          // Start playing when slide becomes active
+          player.seekTo(startTime);
+          player.playVideo();
+        } else {
+          // Stop playing when slide becomes inactive
+          player.pauseVideo();
+        }
+      } catch (error) {
+        console.error('Error controlling video playback:', error);
+      }
+    }
+  }, [isActive, player, isReady, startTime, currentVideoId]);
 
   return (
     <div className="youtube-player">
